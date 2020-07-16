@@ -32,7 +32,7 @@ type Client struct {
 	mutex             sync.RWMutex
 	url               string
 	encoding          protocol.Type
-	config            Config
+	config            WsConfig
 	token             string
 	connectData       protocol.Raw
 	transport         transport
@@ -121,10 +121,10 @@ func New(u string, config Config) *Client {
 		url:               u,
 		encoding:          encoding,
 		subs:              make(map[string]*Subscription),
-		config:            config,
+		config:            config.WsConfig,
 		requests:          make(map[uint32]chan protocol.Reply),
 		reconnect:         true,
-		reconnectStrategy: defaultBackoffReconnect,
+		reconnectStrategy: config.getBackoffReconnect(),
 		paramsEncoder:     newParamsEncoder(encoding),
 		resultDecoder:     newResultDecoder(encoding),
 		commandEncoder:    newCommandEncoder(encoding),
@@ -240,11 +240,10 @@ func (c *Client) NamedRPC(method string, data []byte) ([]byte, error) {
 
 // Close closes Client connection and cleans up state.
 func (c *Client) Close() error {
-	err := c.Disconnect()
 	c.mutex.Lock()
 	c.status = CLOSED
 	c.mutex.Unlock()
-	return err
+	return c.Disconnect()
 }
 
 // close clean ups ws connection and all outgoing requests.
@@ -382,6 +381,18 @@ var defaultBackoffReconnect = &backoffReconnect{
 	MaxMilliseconds: 20 * 1000,
 	Factor:          2,
 	Jitter:          true,
+}
+
+func (c *Config) getBackoffReconnect() (bor *backoffReconnect) {
+	bor = &backoffReconnect{
+		NumReconnect:    c.BackoffConfig.NumReconnect,
+		Factor:          c.BackoffConfig.Factor,
+		Jitter:          c.BackoffConfig.Jitter,
+		MaxMilliseconds: c.BackoffConfig.MaxMilliseconds,
+		MinMilliseconds: c.BackoffConfig.MinMilliseconds,
+	}
+
+	return
 }
 
 func (r *backoffReconnect) timeBeforeNextAttempt(attempt int) (time.Duration, error) {
