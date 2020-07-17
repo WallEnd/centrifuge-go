@@ -3,11 +3,10 @@ package main
 // Demonstrate how to reconnect.
 
 import (
+	"centrifuge-go"
 	"fmt"
 	"log"
 	"time"
-
-	"github.com/centrifugal/centrifuge-go"
 )
 
 func init() {
@@ -45,7 +44,7 @@ func (h *subEventHandler) OnUnsubscribe(sub *centrifuge.Subscription, e centrifu
 }
 
 func newConnection() *centrifuge.Client {
-	url := "ws://localhost:8000/connection/websocket?format=protobuf"
+	url := "ws://localhost:8008/connection/websocket?format=protobuf"
 
 	c := centrifuge.New(url, centrifuge.DefaultConfig())
 

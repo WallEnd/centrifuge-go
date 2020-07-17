@@ -19,10 +19,20 @@ const (
 	DefaultPingInterval = 25 * time.Second
 	// DefaultPrivateChannelPrefix ...
 	DefaultPrivateChannelPrefix = "$"
+	// NumReconnect is maximum number of reconnect attempts, 0 means reconnect forever.
+	DefaultBackoffNumReconnect = 0
+	// MinMilliseconds is a minimum value of the reconnect interval.
+	DefaultBackoffMinMilliseconds = 100
+	// MaxMilliseconds is a maximum value of the reconnect interval.
+	DefaultBackoffMaxMilliseconds = 20 * 1000
+	// Factor is the multiplying factor for each increment step.
+	DefaultBackoffFactor = 2
+	// Jitter eases contention by randomizing backoff steps.
+	DefaultBackoffJitter = true
 )
 
-// Config contains various client options.
-type Config struct {
+// WsConfig contains various client options.
+type WsConfig struct {
 	// NetDialContext specifies the dial function for creating TCP connections. If
 	// NetDialContext is nil, net.DialContext is used.
 	NetDialContext func(ctx context.Context, network, addr string) (net.Conn, error)
@@ -53,14 +63,41 @@ type Config struct {
 	Header http.Header
 }
 
-// DefaultConfig returns Config with default options.
+type BackoffReconnectConfig struct {
+	// NumReconnect is maximum number of reconnect attempts, 0 means reconnect forever.
+	NumReconnect int
+	// Factor is the multiplying factor for each increment step.
+	Factor float64
+	// Jitter eases contention by randomizing backoff steps.
+	Jitter bool
+	// MinMilliseconds is a minimum value of the reconnect interval.
+	MinMilliseconds int
+	// MaxMilliseconds is a maximum value of the reconnect interval.
+	MaxMilliseconds int
+}
+
+type Config struct {
+	BackoffConfig BackoffReconnectConfig
+	WsConfig      WsConfig
+}
+
+// DefaultConfig returns WsConfig with default options.
 func DefaultConfig() Config {
 	return Config{
-		PingInterval:         DefaultPingInterval,
-		ReadTimeout:          DefaultReadTimeout,
-		WriteTimeout:         DefaultWriteTimeout,
-		HandshakeTimeout:     DefaultHandshakeTimeout,
-		PrivateChannelPrefix: DefaultPrivateChannelPrefix,
-		Header:               http.Header{},
+		BackoffReconnectConfig{
+			NumReconnect:    DefaultBackoffNumReconnect,
+			Factor:          DefaultBackoffFactor,
+			Jitter:          DefaultBackoffJitter,
+			MinMilliseconds: DefaultBackoffMinMilliseconds,
+			MaxMilliseconds: DefaultBackoffMaxMilliseconds,
+		},
+		WsConfig{
+			PingInterval:         DefaultPingInterval,
+			ReadTimeout:          DefaultReadTimeout,
+			WriteTimeout:         DefaultWriteTimeout,
+			HandshakeTimeout:     DefaultHandshakeTimeout,
+			PrivateChannelPrefix: DefaultPrivateChannelPrefix,
+			Header:               http.Header{},
+		},
 	}
 }

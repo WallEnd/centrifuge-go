@@ -15,4 +15,6 @@ var (
 	ErrReconnectFailed = errors.New("reconnect failed")
 	// ErrDuplicateSubscription ...
 	ErrDuplicateSubscription = errors.New("duplicate subscription")
+	//ErrConnectionClosed
+	ErrClientDestroyed = errors.New("client destroyed")
 )
