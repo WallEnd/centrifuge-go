@@ -240,10 +240,11 @@ func (c *Client) NamedRPC(method string, data []byte) ([]byte, error) {
 
 // Close closes Client connection and cleans up state.
 func (c *Client) Close() error {
+	err := c.Disconnect()
 	c.mutex.Lock()
 	c.status = CLOSED
 	c.mutex.Unlock()
-	return c.Disconnect()
+	return err
 }
 
 // close clean ups ws connection and all outgoing requests.
@@ -373,14 +374,6 @@ type backoffReconnect struct {
 	MinMilliseconds int
 	// MaxMilliseconds is a maximum value of the reconnect interval.
 	MaxMilliseconds int
-}
-
-var defaultBackoffReconnect = &backoffReconnect{
-	NumReconnect:    0,
-	MinMilliseconds: 100,
-	MaxMilliseconds: 20 * 1000,
-	Factor:          2,
-	Jitter:          true,
 }
 
 func (c *Config) getBackoffReconnect() (bor *backoffReconnect) {

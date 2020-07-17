@@ -44,7 +44,7 @@ func (h *subEventHandler) OnUnsubscribe(sub *centrifuge.Subscription, e centrifu
 }
 
 func newConnection() *centrifuge.Client {
-	url := "ws://10.9.242.33:8008/connection/websocket?format=protobuf"
+	url := "ws://localhost:8008/connection/websocket?format=protobuf"
 
 	c := centrifuge.New(url, centrifuge.DefaultConfig())
 
