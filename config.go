@@ -20,9 +20,9 @@ const (
 	// DefaultPrivateChannelPrefix ...
 	DefaultPrivateChannelPrefix = "$"
 	// NumReconnect is maximum number of reconnect attempts, 0 means reconnect forever.
-	DefaultBackoffNumReconnect = 0
+	DefaultBackoffNumReconnect = 10
 	// MinMilliseconds is a minimum value of the reconnect interval.
-	DefaultBackoffMinMilliseconds = 100
+	DefaultBackoffMinMilliseconds = 5 * 1000
 	// MaxMilliseconds is a maximum value of the reconnect interval.
 	DefaultBackoffMaxMilliseconds = 20 * 1000
 	// Factor is the multiplying factor for each increment step.
